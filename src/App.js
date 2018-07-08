@@ -8,6 +8,9 @@ import './css/open-sans.css'
 import './css/pure-min.css'
 import './App.css'
 
+const contract = require('truffle-contract')
+const Adoption = contract(AdoptionContract);
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -16,10 +19,14 @@ class App extends Component {
       storageValue: 0,
       web3: null,
       dogList: [],
-      adopters: []
+      adopters: [],
+      account: null,
+      adoptionInstance: null
     }
     this.instantiateContract = this.instantiateContract.bind(this)
     this.handleAdopt = this.handleAdopt.bind(this)
+    this.getAccounts = this.getAccounts.bind(this)
+    this.handleReturnPet = this.handleReturnPet.bind(this)
   }
 
   componentWillMount() {
@@ -28,6 +35,7 @@ class App extends Component {
 
     getWeb3
     .then(results => {
+        console.log(results)
       this.setState({
         web3: results.web3
       })
@@ -41,44 +49,29 @@ class App extends Component {
   }
 
 
-
+  getAccounts() {
+      this.state.web3.eth.getAccounts( (err, accounts) => {
+          console.log(accounts)
+          this.setState({ account : accounts[0]})
+      })
+  }
   async instantiateContract() {
-    /*
-     * SMART CONTRACT EXAMPLE
-     *
-     * Normally these functions would be called in the context of a
-     * state management library, but for convenience I've placed them here.
-     */
-
-    const contract = require('truffle-contract')
-    const Adoption = contract(AdoptionContract);
+    let adoptionInstance;
     Adoption.setProvider(this.state.web3.currentProvider);
-    this.setState({ dogList })
-    var adoptionInstance;
-    // Get accounts.
+    this.getAccounts()
+    adoptionInstance = await Adoption.deployed();
+    let adopters = await adoptionInstance.getAdopters.call()
+    console.log(adopters)
+    this.setState({ adopters, dogList, adoptionInstance })
 
-    this.state.web3.eth.getAccounts( async (err, account) => {
-        console.log(account)
-        adoptionInstance = await Adoption.at('0xdd2cbda74abc54bbf27955c34b215098372f8906');
-        let adopters = await adoptionInstance.getAdopters.call()
-        this.setState({ adopters })
-        console.log(adopters)
-    } );
   }
 
   handleAdopt(index){
-      console.log(index)
-    var adoptionInstance;
-    const contract = require('truffle-contract')
-    const Adoption = contract(AdoptionContract);
-    Adoption.setProvider(this.state.web3.currentProvider);
-    this.state.web3.eth.getAccounts( async (err, account) => {
-        console.log(account)
-        adoptionInstance = await Adoption.at('0xdd2cbda74abc54bbf27955c34b215098372f8906');
-        await adoptionInstance.adopt(index, {from: account[0]})
-        this.instantiateContract()
+    this.state.adoptionInstance.adopt(index, {from: this.state.account})
+  }
 
-    } );
+  handleReturnPet(index) {
+    this.state.adoptionInstance.returnPet(index, {from: this.state.account})
   }
 
   render() {
@@ -97,6 +90,13 @@ class App extends Component {
                     <button disabled type="submit" value="Adopt">Success</button>
                     :
                     <button onClick={() => this.handleAdopt(index)} value="Adopt">Adopt</button>
+                    }
+
+                    {
+                     (this.state.adopters[index] === this.state.account) ?
+                          (<button type="submit" onClick={ () => this.handleReturnPet(index) } >Return Pet</button>) :
+                          null
+
                     }
                 </li>
             )
