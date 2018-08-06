@@ -2,6 +2,10 @@ import React, { Component } from 'react'
 import getWeb3 from './utils/getWeb3'
 import AdoptionContract from '../build/contracts/Adoption.json'
 import dogList from './pets.json'
+import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -10,6 +14,12 @@ import './App.css'
 
 const contract = require('truffle-contract')
 const Adoption = contract(AdoptionContract);
+
+const paperStyle = {
+  width: '80%',
+  margin: 'auto',
+  textAlign: 'center'
+}
 
 class App extends Component {
   constructor(props) {
@@ -36,6 +46,8 @@ class App extends Component {
     getWeb3
     .then(results => {
         console.log(results)
+        console.log(React.version)
+
       this.setState({
         web3: results.web3
       })
@@ -71,37 +83,41 @@ class App extends Component {
   }
 
   handleReturnPet(index) {
-    this.state.adoptionInstance.returnPet(index, {from: this.state.account})
+    this.state.adoptionInstance.returnPet(index, {from: this.state.account, gas: 4712388, gasPrice: 100000000000})
   }
 
   render() {
     return (
       <div className="App">
-        <h1>Pet List</h1>
-        <ul>
-            {this.state.dogList.map( (dog, index) => {
-            return (
-                <li key={index} >
+        <div style={{textAlign: 'center'}} >
+        <h1 style={{margin: 'auto'}}>Adopt a Pet on the Ethereum Network</h1>
+        </div>
+        <Paper style={paperStyle} >
+          <GridList cellHeight={160} cols={3} >
+            {this.state.dogList.map( (dog, index) => (
+                  <GridListTile key={index} cols={1}>
                     <h2>{ dog.name }</h2>
-                    <p>{dog.breed}</p>
+                    <p>{ dog.breed }</p>
                     {
                     (this.state.adopters[index] !== '0x0000000000000000000000000000000000000000')
                     ?
-                    <button disabled type="submit" value="Adopt">Success</button>
+                    <Button disabled type="submit" value="Adopt">Pet Adopted</Button>
                     :
-                    <button onClick={() => this.handleAdopt(index)} value="Adopt">Adopt</button>
+                    <Button color="primary" onClick={() => this.handleAdopt(index)} value="Adopt">Adopt</Button>
                     }
 
                     {
-                     (this.state.adopters[index] === this.state.account) ?
-                          (<button type="submit" onClick={ () => this.handleReturnPet(index) } >Return Pet</button>) :
+                    (this.state.adopters[index] === this.state.account) ?
+                          (<Button color="secondary" type="submit" onClick={ () => this.handleReturnPet(index) } >Return Pet</Button>) 
+                          :
                           null
 
                     }
-                </li>
-            )
-        })}
-        </ul>
+                  </GridListTile>
+          ))}
+          </GridList>
+        </Paper>
+
       </div>
     );
   }
