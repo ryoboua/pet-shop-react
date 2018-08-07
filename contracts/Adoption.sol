@@ -1,6 +1,8 @@
 pragma solidity ^0.4.17;
 
-contract Adoption {
+import './Migrations.sol';
+
+contract Adoption is Migrations {
     address[16] public adopters;
     address public constant STORE_WALLET = 0x0000000000000000000000000000000000000000;
 
