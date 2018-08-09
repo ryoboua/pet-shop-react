@@ -23,6 +23,7 @@ contract Adoption is Migrations {
         createPet('Jackie', 'Dog', 100);
         createPet('Taco', 'Cat', 200);
         createPet('Jim', 'Snake', 300);
+
     }
 
     function getPetOwnerAddress( uint _petId) public view returns (address) {
