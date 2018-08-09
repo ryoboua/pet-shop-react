@@ -4,25 +4,33 @@ import Button from '@material-ui/core/Button';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import styles from '../styles.js'
+import AddPetFormDialog from './AddPetFormDialog'
 
 
 
-class OwnerComponent extends Component {
-    constructor(props){
-        super(props)
-        this.createPet = this.createPet.bind(this)
+export default class OwnerComponent extends Component {
+
+    state = {
+        showForm: false,
+    };
+
+    handleClickOpen = () => {
+        this.setState({ showForm: true });
+    };
+
+    handleClose = () => {
+        this.setState({ showForm: false });
+    };
+
+    addPet = (name, breed, price) => {
+        this.props.createPet(name, breed, price)
     }
-
-    createPet() {
-        this.props.createPet('Test', 'Dummy', 100)
-    }
-
     render(){
         return (
             <div>
                 <h1>You are the store Owner</h1>
                 <Paper style={styles.paperStyle} >
-                    <GridList cellHeight={160} cols={3} >
+                    <GridList cellHeight={160} cols={3}>
                         {this.props.petList.map( (pet, index) => (
                             <GridListTile key={index} cols={1}>
                                 <h2>{ pet.name }</h2>
@@ -31,11 +39,14 @@ class OwnerComponent extends Component {
                             </GridListTile>
                     ))}
                     </GridList>
-                    <Button onClick={this.createPet} color='primary'> Add Pet </Button>
+                    <Button onClick={this.handleClickOpen} color='primary'> Add Pet </Button>
+                    <AddPetFormDialog
+                      showForm={this.state.showForm}
+                      closeForm={this.handleClose}
+                      addPet={this.addPet}
+                    />
                 </Paper>
             </div>
         )
     }
 }
-
-export default OwnerComponent;
