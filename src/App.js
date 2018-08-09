@@ -41,9 +41,7 @@ class App extends Component {
     }
     this.instantiateContract = this.instantiateContract.bind(this)
     this.handleAdopt = this.handleAdopt.bind(this)
-    this.getActiveMetaMaskAccount = this.getActiveMetaMaskAccount.bind(this)
     this.handleReturnPet = this.handleReturnPet.bind(this)
-    this.handleCreatePet = this.handleCreatePet.bind(this)
   }
 
   componentWillMount() {
@@ -64,14 +62,23 @@ class App extends Component {
     })
   }
 
+  checkTransactionResults = (results) => {
+    for (var i = 0; i < results.logs.length; i++) {
+      if (results.logs[i].event === "NewPetCreated") {
+        alert('Pet Added')
+        break;
+      }
+    }
+  }
 
-  getActiveMetaMaskAccount() {
+
+  getActiveMetaMaskAccount = () => {
       this.state.web3.eth.getAccounts( (err, accounts) => {
           this.setState({ account : accounts[0]})
       })
   }
 
-  async instantiateContract() {
+  instantiateContract = async () => {
     let adoptionInstance;
     Adoption.setProvider(this.state.web3.currentProvider);
     this.getActiveMetaMaskAccount()
@@ -79,7 +86,9 @@ class App extends Component {
     adoptionInstance = await Adoption.deployed();
     
     const contractOwner = await adoptionInstance.owner.call()
-    const TotalNumberOfPets = await adoptionInstance.getTotalNumberOfPets.call().then(x => x.toString())
+    let TotalNumberOfPets = await adoptionInstance.getTotalNumberOfPets.call()
+                                      .then(TotalNumberOfPet => TotalNumberOfPet.toString())
+
     const petList = await getPetList(adoptionInstance, TotalNumberOfPets)
 
     this.setState({ petList, adoptionInstance, contractOwner })
@@ -94,8 +103,11 @@ class App extends Component {
     this.state.adoptionInstance.returnPet(index, {from: this.state.account, gas: 4712388, gasPrice: 100000000000})
   }
 
-  handleCreatePet(_name, _breed, _price){
-    this.state.adoptionInstance.createPet(_name, _breed, _price, {from: this.state.contractOwner})
+  handleCreatePet = (name, breed, price) => {
+    console.log(name, breed, price)
+    this.state.adoptionInstance.createPet(name, breed, price, {from: this.state.contractOwner})
+      .then(this.checkTransactionResults)
+      .catch(err => console.log('Error during pet creation', err))
   }
 
   render() {
