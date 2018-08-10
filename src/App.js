@@ -3,6 +3,8 @@ import getWeb3 from './utils/getWeb3'
 import AdoptionContract from '../build/contracts/Adoption.json'
 import OwnerComponent from './components/OwnerComponent.js'
 import ClientComponent from './components/ClientComponent.js'
+import getPetList from './helpers.js';
+
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -12,42 +14,25 @@ import './App.css'
 const contract = require('truffle-contract')
 const Adoption = contract(AdoptionContract);
 
-const getPetList = async (contractInstance, numOfPets) => {
-  // fetch Pet List and Rebuild Object Array of Pets
-  const promiseArr = [];
-  for (let i = 0; i < numOfPets; i++ ) {
-    promiseArr[i] = await contractInstance.pets(i)
-  }
-    return promiseArr.map( pet => {
-      return {
-        name: pet[0],
-        breed: pet[1],
-        price: pet[2].toString()
-      }
-    })
-}
 
 
-class App extends Component {
-  constructor(props) {
-    super(props)
 
-    this.state = {
+export default class App extends Component {
+  
+    state = {
       web3: null,
-      petList: [],
-      account: null,
+      account: 'null',
       adoptionInstance: null,
       contractOwner: null,
+      TotalNumberOfPets: null,
+      petList: []
     }
-    this.instantiateContract = this.instantiateContract.bind(this)
-    this.handleAdopt = this.handleAdopt.bind(this)
-    this.handleReturnPet = this.handleReturnPet.bind(this)
-  }
-
-  componentWillMount() {
+  
+  constructor(props) {
+    super(props)
     // Get network provider and web3 instance.
     // See utils/getWeb3 for more info.
-
+  
     getWeb3
     .then(results => {
       this.setState({
@@ -71,7 +56,6 @@ class App extends Component {
     }
   }
 
-
   getActiveMetaMaskAccount = () => {
       this.state.web3.eth.getAccounts( (err, accounts) => {
           this.setState({ account : accounts[0]})
@@ -88,19 +72,19 @@ class App extends Component {
     const contractOwner = await adoptionInstance.owner.call()
     let TotalNumberOfPets = await adoptionInstance.getTotalNumberOfPets.call()
                                       .then(TotalNumberOfPet => TotalNumberOfPet.toString())
-
     const petList = await getPetList(adoptionInstance, TotalNumberOfPets)
+    console.log(petList)
 
-    this.setState({ petList, adoptionInstance, contractOwner })
-
+    return this.setState({ adoptionInstance, contractOwner, TotalNumberOfPets, petList })
   }
 
-  handleAdopt(index){
-    this.state.adoptionInstance.adopt(index, {from: this.state.account})
+  handleAdopt = petId => {
+    console.log(petId)
+    this.state.adoptionInstance.adopt(petId, {from: this.state.account})
   }
 
-  handleReturnPet(index) {
-    this.state.adoptionInstance.returnPet(index, {from: this.state.account, gas: 4712388, gasPrice: 100000000000})
+  handleReturnPet = petId => {
+    this.state.adoptionInstance.returnPet(petId, {from: this.state.account, gas: 4712388, gasPrice: 100000000000})
   }
 
   handleCreatePet = (name, breed, price) => {
@@ -116,24 +100,24 @@ class App extends Component {
         <div style={{textAlign: 'center'}} >
         <h1 style={{margin: 'auto'}}>Adopt a Pet on the Ethereum Network</h1>
         </div>
-        { 
-          this.state.account === this.state.contractOwner ?
-          <OwnerComponent
+          { 
+            //Check if active account is store owner or client
+            this.state.account === this.state.contractOwner ?
+            <OwnerComponent
+              createPet={this.handleCreatePet}
+              petList={this.state.petList}
+            /> 
+            :
+            <ClientComponent
+            account={this.state.account}
             petList={this.state.petList}
-            createPet={this.handleCreatePet}
-          /> 
-          :
-          // <ClientComponent
-          //   dogList={this.state.dogList}
-          //   adopters={this.state.adopters}
-          //   account={this.state.account}
-          // />
-          null
-       
-        }
+            adopt={this.handleAdopt}
+            returnPet={this.handleReturnPet}
+            />
+          }
       </div>
     );
   }
 }
 
-export default App
+
