@@ -12,6 +12,8 @@ contract Adoption is Migrations {
         string name;
         string breed;
         uint price;
+        bool adopted;
+        address owner;
     }
 
     Pet[] public pets;
@@ -23,7 +25,6 @@ contract Adoption is Migrations {
         createPet('Jackie', 'Dog', 100);
         createPet('Taco', 'Cat', 200);
         createPet('Jim', 'Snake', 300);
-
     }
 
     function getPetOwnerAddress( uint _petId) public view returns (address) {
@@ -31,7 +32,7 @@ contract Adoption is Migrations {
     }
 
     function createPet(string _name, string _breed, uint _price) public onlyOwner returns (uint) {
-        uint _petId = pets.push(Pet(_name, _breed, _price)) - 1;
+        uint _petId = pets.push(Pet(_name, _breed, _price, false, msg.sender)) - 1;
         petToOwner[_petId] = owner;
         ownerPetCount[owner]++;
         emit NewPetCreated(_name, _breed, _price);
@@ -42,9 +43,13 @@ contract Adoption is Migrations {
         require(_petId >= 0);
         require(petToOwner[_petId] == owner);
 
+        pets[_petId].adopted = true;
+        pets[_petId].owner = msg.sender;
+
         petToOwner[_petId] = msg.sender;
         ownerPetCount[msg.sender]++;
         ownerPetCount[owner]--;
+
         emit PetAdopted(pets[_petId].name, msg.sender);
         return _petId;
     }
@@ -52,7 +57,14 @@ contract Adoption is Migrations {
     function returnPet(uint _petId) public returns (uint) {
         require( _petId >= 0);
         require( petToOwner[_petId] == msg.sender );
+
+        pets[_petId].adopted = false;
+        pets[_petId].owner = owner;
+
         petToOwner[_petId] = owner;
+        ownerPetCount[owner]++;
+        ownerPetCount[msg.sender]--;
+
         emit PetReturned(pets[_petId].name);
         return _petId;
     }
@@ -61,8 +73,20 @@ contract Adoption is Migrations {
         return pets.length;
     }
 
-    function getPet(uint _index) public view returns (string, string, uint) {
+    function getPet(uint _index) public view returns (string, string, uint, bool, address) {
         Pet memory pet = pets[_index];
-        return (pet.name, pet.breed, pet.price);
+        return (pet.name, pet.breed, pet.price, pet.adopted, pet.owner);
+    }
+
+    function getPetsOwnnedByContractOwner(address _owner) external view returns(uint[]) {
+        uint[] memory result = new uint[](ownerPetCount[_owner]);
+        uint counter = 0;
+        for (uint i = 0; i < pets.length; i++) {
+        if (petToOwner[i] == _owner) {
+            result[counter] = i;
+            counter++;
+        }
+        }
+        return result;
     }
 }
