@@ -3,8 +3,7 @@ import getWeb3 from './utils/getWeb3'
 import AdoptionContract from '../build/contracts/Adoption.json'
 import OwnerComponent from './components/OwnerComponent.js'
 import ClientComponent from './components/ClientComponent.js'
-import getPetList from './helpers.js';
-
+import { getPetList } from './helpers.js';
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -14,25 +13,11 @@ import './App.css'
 const contract = require('truffle-contract')
 const Adoption = contract(AdoptionContract);
 
-
-
-
 export default class App extends Component {
-  
-    state = {
-      web3: null,
-      account: 'null',
-      adoptionInstance: null,
-      contractOwner: null,
-      TotalNumberOfPets: null,
-      petList: []
-    }
-  
   constructor(props) {
     super(props)
     // Get network provider and web3 instance.
     // See utils/getWeb3 for more info.
-  
     getWeb3
     .then(results => {
       this.setState({
@@ -47,6 +32,14 @@ export default class App extends Component {
     })
   }
 
+  state = {
+    web3: null,
+    account: 'null',
+    adoptionInstance: null,
+    contractOwner: null,
+    TotalNumberOfPets: null,
+    petList: []
+  }
   checkTransactionResults = (results) => {
     for (var i = 0; i < results.logs.length; i++) {
       if (results.logs[i].event === "NewPetCreated") {
@@ -63,23 +56,21 @@ export default class App extends Component {
   }
 
   instantiateContract = async () => {
-    let adoptionInstance;
-    Adoption.setProvider(this.state.web3.currentProvider);
+    // Getting deployed contract and stating up App state
     this.getActiveMetaMaskAccount()
 
-    adoptionInstance = await Adoption.deployed();
+    Adoption.setProvider(this.state.web3.currentProvider);
+    const adoptionInstance = await Adoption.deployed();
     
     const contractOwner = await adoptionInstance.owner.call()
-    let TotalNumberOfPets = await adoptionInstance.getTotalNumberOfPets.call()
-                                      .then(TotalNumberOfPet => TotalNumberOfPet.toString())
+    const TotalNumberOfPets = await adoptionInstance.getTotalNumberOfPets.call()
+                                      .then(result => result.toString())
     const petList = await getPetList(adoptionInstance, TotalNumberOfPets)
-    console.log(petList)
 
     return this.setState({ adoptionInstance, contractOwner, TotalNumberOfPets, petList })
   }
 
   handleAdopt = petId => {
-    console.log(petId)
     this.state.adoptionInstance.adopt(petId, {from: this.state.account})
   }
 
@@ -88,7 +79,6 @@ export default class App extends Component {
   }
 
   handleCreatePet = (name, breed, price) => {
-    console.log(name, breed, price)
     this.state.adoptionInstance.createPet(name, breed, price, {from: this.state.contractOwner})
       .then(this.checkTransactionResults)
       .catch(err => console.log('Error during pet creation', err))
@@ -107,13 +97,15 @@ export default class App extends Component {
               createPet={this.handleCreatePet}
               petList={this.state.petList}
             /> 
-            :
+            : this.state.account !== null ?
             <ClientComponent
             account={this.state.account}
             petList={this.state.petList}
             adopt={this.handleAdopt}
             returnPet={this.handleReturnPet}
             />
+            :
+            null
           }
       </div>
     );

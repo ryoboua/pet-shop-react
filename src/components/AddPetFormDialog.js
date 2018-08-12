@@ -13,7 +13,7 @@ export default class AddPetFormDialog extends Component {
         price: '',
     }
 
-    onTextChange = (event) => {
+    onTextChange = event => {
         switch (event.target.id) {
             case 'name':
                 this.setState({ name: event.target.value })
@@ -33,7 +33,7 @@ export default class AddPetFormDialog extends Component {
         this.props.addPet(
             this.state.name,
             this.state.breed,
-            this.state.price
+            this.state.price = 100 // default
         )
         this.props.closeForm()
     }

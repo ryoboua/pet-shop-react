@@ -2,9 +2,9 @@ const styles = {
     paperStyle: {
         width: '80%',
         margin: 'auto',
-        textAlign: 'center'
+        textAlign: 'center',
+        paddingBottom: '10px'
     },
-
 }
 
 export default styles;
