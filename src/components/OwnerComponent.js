@@ -5,23 +5,26 @@ import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import styles from '../styles.js'
 import AddPetFormDialog from './AddPetFormDialog'
+import { fetchPet } from '../helpers.js'
+
 
 export default class OwnerComponent extends Component {
     state = {
         showForm: false,
+        dog: {},
+
     };
 
-    handleClickOpen = () => {
-        this.setState({ showForm: true });
+    handleClickOpen = async () => {
+        const dog = await fetchPet()
+        console.log(dog)
+        this.setState({ showForm: true, dog });
     };
 
     handleClose = () => {
         this.setState({ showForm: false });
     };
 
-    addPet = (name, breed, price) => {
-        this.props.createPet(name, breed, price)
-    }
     render(){
 
         return (
@@ -35,6 +38,8 @@ export default class OwnerComponent extends Component {
                                 <p>{ pet.breed }</p>
                                 <p>${ pet.price }</p>
                                 <p>Adoption Status: {pet.adopted ? 'True': 'False'}</p>
+                                <img src={pet.imageURL} alt={`Picture of ${pet.breed}`} />
+
                             </GridListTile>
                     ))}
                     </GridList>
@@ -42,7 +47,7 @@ export default class OwnerComponent extends Component {
                     <AddPetFormDialog
                       showForm={this.state.showForm}
                       closeForm={this.handleClose}
-                      addPet={this.addPet}
+                      dog={this.state.dog}
                     />
                 </Paper>
             </div>
