@@ -22,10 +22,13 @@ contract Adoption is Migrations {
     mapping (address => uint) public ownerPetCount;
 
     constructor() public {
+
         //Populate Pet Store
-        createPet('Jackie', 'germanshepherd', 100, 'https://images.dog.ceo/breeds/germanshepherd/n02106662_4059.jpg');
-        createPet('Taco', 'germanshepherd', 200, 'https://images.dog.ceo/breeds/germanshepherd/n02106662_4059.jpg');
-        createPet('Jim', 'germanshepherd', 300, 'https://images.dog.ceo/breeds/germanshepherd/n02106662_4059.jpg');
+        createPet('Jackie', 'German Shepherd', 10, 'https://images.dog.ceo/breeds/germanshepherd/n02106662_4059.jpg');
+        createPet('Taco', 'Bulldog-Boston', 20, 'https://images.dog.ceo/breeds/bulldog-boston/n02096585_11614.jpg');
+        createPet('Jim', 'Appenzeller', 30, 'https://images.dog.ceo/breeds/appenzeller/n02107908_3387.jpg');
+        createPet('David', 'Redbone', 25, 'https://images.dog.ceo/breeds/redbone/n02090379_4643.jpg');
+
     }
 
     function getPetOwnerAddress( uint _petId) public view returns (address) {
@@ -40,9 +43,12 @@ contract Adoption is Migrations {
         return _petId;
     }
 
-    function adopt(uint _petId) public returns (uint) {
+    function adopt(uint _petId) public payable returns (uint) {
+        uint _petPrice = _getPetAdoptionPrice(_petId);
+
         require(_petId >= 0);
         require(petToOwner[_petId] == owner);
+        require(msg.value >= _petPrice);
 
         pets[_petId].adopted = true;
         pets[_petId].owner = msg.sender;
@@ -83,11 +89,21 @@ contract Adoption is Migrations {
         uint[] memory result = new uint[](ownerPetCount[_owner]);
         uint counter = 0;
         for (uint i = 0; i < pets.length; i++) {
-        if (petToOwner[i] == _owner) {
-            result[counter] = i;
-            counter++;
-        }
+            if (petToOwner[i] == _owner) {
+                result[counter] = i;
+                counter++;
+            }
         }
         return result;
+    }
+
+    function _getPetAdoptionPrice(uint _petId) private view returns (uint) {
+        uint _petPrice = pets[_petId].price;
+        _petPrice = _petPrice*10**18;
+        return _petPrice;
+    }
+    //getStoreBalance should have onlyOwner modifier leaving it out for now
+    function getStoreBalance() public view returns (uint256) {
+        return address(this).balance;
     }
 }

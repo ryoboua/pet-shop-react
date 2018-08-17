@@ -40,9 +40,11 @@ export default class AddPetFormDialog extends Component {
                             return this.props.closeForm()
                             }
                         }
-                    > Add </Button>
+                    >
+                     Add
+                    </Button>
                     )
-            } 
+                } 
             }
         </AppContext.Consumer>
 
@@ -74,7 +76,9 @@ export default class AddPetFormDialog extends Component {
                       fullWidth
                       value={this.props.dog.breed}
                     />
-                    <img src={this.props.dog.image} alt={`Picture of ${this.props.dog.breed}`} />
+                    <div style={{textAlign: 'center'}} >
+                        <img style={{height: '250px', width: '300px'}} src={this.props.dog.image} alt={this.props.dog.breed} />
+                    </div>
                     <TextField
                       margin="dense"
                       id="price"

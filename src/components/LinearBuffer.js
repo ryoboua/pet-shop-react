@@ -32,7 +32,6 @@ class LinearBuffer extends React.Component {
         this.props.loadingComplete() 
     } else {
       const diff = Math.random() * 50;
-      //const diff2 = Math.random() * 10;
       this.setState({ completed: completed + diff});
     }
   };
@@ -42,14 +41,13 @@ class LinearBuffer extends React.Component {
     const { classes } = this.props;
     const { completed, buffer } = this.state;
     return (
-    <div style={{textAlign: 'center', paddingTop: '150px'}} >
-        <h1>Loading Pet Store...</h1>
-        <div className={classes.root}>
-            <LinearProgress color="secondary" variant="buffer" value={completed} valueBuffer={buffer} />
-        </div>  
-    </div>
-      
-    );
+        <div style={{textAlign: 'center', paddingTop: '150px'}} >
+            <h1>Loading Pet Store...</h1>
+            <div className={classes.root}>
+                <LinearProgress color="secondary" variant="buffer" value={completed} valueBuffer={buffer} />
+            </div>  
+        </div> 
+    )
   }
 }
 

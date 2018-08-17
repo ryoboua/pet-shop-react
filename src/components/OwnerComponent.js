@@ -17,7 +17,6 @@ export default class OwnerComponent extends Component {
 
     handleClickOpen = async () => {
         const dog = await fetchPet()
-        console.log(dog)
         this.setState({ showForm: true, dog });
     };
 
@@ -26,24 +25,28 @@ export default class OwnerComponent extends Component {
     };
 
     render(){
-
         return (
             <div>
                 <Paper style={styles.paperStyle}>
-                <h1>Owner View</h1>
-                    <GridList cellHeight={200} cols={3}>
+                <h1>Owner View - Store Ether Balance {this.props.storeEtherBalance}</h1>
+
+                <Button style={{marginBottom: '2em'}} onClick={this.handleClickOpen} variant="contained" color='secondary'> Add Pet </Button>
+
+                    <GridList cellHeight={300} cols={2}>
                         {this.props.petList.map( (pet, index) => (
                             <GridListTile key={index} cols={1}>
-                                <h2>{ pet.name }</h2>
-                                <p>{ pet.breed }</p>
-                                <p>${ pet.price }</p>
-                                <p>Adoption Status: {pet.adopted ? 'True': 'False'}</p>
-                                <img src={pet.imageURL} alt={`Picture of ${pet.breed}`} />
-
+                                <div style={{display: 'flex', flexWrap: 'nowrap', justifyContent: 'space-evenly'}} >
+                                    <img style={{height: '250px', width: '300px'}} src={pet.imageURL} alt={pet.breed} />
+                                    <div>
+                                        <h2>{ pet.name }</h2>
+                                        <p>{ pet.breed }</p>
+                                        <p>{ pet.price } Ether</p>
+                                        <p>Adoption Status: {pet.adopted ? 'True': 'False'}</p>
+                                    </div>
+                                </div>
                             </GridListTile>
                     ))}
                     </GridList>
-                    <Button onClick={this.handleClickOpen} variant="contained" color='secondary'> Add Pet </Button>
                     <AddPetFormDialog
                       showForm={this.state.showForm}
                       closeForm={this.handleClose}

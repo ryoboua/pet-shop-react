@@ -10,6 +10,7 @@ export const getPetList = async (contractInstance, numOfPets) => {
 
   export const fetchPet = async () => {
     const newPet = await fetch('https://dog.ceo/api/breeds/image/random').then(result => result.json()).catch(err => console.log(err))
+    
     if (newPet && newPet.status === 'success') {
         const breed = newPet.message.split('/')[4]
         const image = newPet.message
