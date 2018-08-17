@@ -12,6 +12,7 @@ contract Adoption is Migrations {
         string name;
         string breed;
         uint price;
+        string imageURL;
         bool adopted;
         address owner;
     }
@@ -22,17 +23,17 @@ contract Adoption is Migrations {
 
     constructor() public {
         //Populate Pet Store
-        createPet('Jackie', 'Dog', 100);
-        createPet('Taco', 'Cat', 200);
-        createPet('Jim', 'Snake', 300);
+        createPet('Jackie', 'germanshepherd', 100, 'https://images.dog.ceo/breeds/germanshepherd/n02106662_4059.jpg');
+        createPet('Taco', 'germanshepherd', 200, 'https://images.dog.ceo/breeds/germanshepherd/n02106662_4059.jpg');
+        createPet('Jim', 'germanshepherd', 300, 'https://images.dog.ceo/breeds/germanshepherd/n02106662_4059.jpg');
     }
 
     function getPetOwnerAddress( uint _petId) public view returns (address) {
         return petToOwner[_petId];
     }
 
-    function createPet(string _name, string _breed, uint _price) public onlyOwner returns (uint) {
-        uint _petId = pets.push(Pet(_name, _breed, _price, false, msg.sender)) - 1;
+    function createPet(string _name, string _breed, uint _price, string _imageURL) public onlyOwner returns (uint) {
+        uint _petId = pets.push(Pet(_name, _breed, _price, _imageURL, false, msg.sender)) - 1;
         petToOwner[_petId] = owner;
         ownerPetCount[owner]++;
         emit NewPetCreated(_name, _breed, _price);
@@ -73,9 +74,9 @@ contract Adoption is Migrations {
         return pets.length;
     }
 
-    function getPet(uint _index) public view returns (string, string, uint, bool, address) {
+    function getPet(uint _index) public view returns (string, string, uint, string, bool, address) {
         Pet memory pet = pets[_index];
-        return (pet.name, pet.breed, pet.price, pet.adopted, pet.owner);
+        return (pet.name, pet.breed, pet.price, pet.imageURL, pet.adopted, pet.owner);
     }
 
     function getPetsOwnnedByContractOwner(address _owner) external view returns(uint[]) {
