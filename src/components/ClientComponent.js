@@ -5,13 +5,16 @@ import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import styles from '../styles.js';
 
+
 class ClientComponent extends Component {
     render() {
+        const { petList, adopt, returnPet, account  } = this.props;
+        
         return (
             <Paper style={styles.paperStyle} >
                 <h1>Client View</h1>
                 <GridList cellHeight={200} cols={3} >
-                    {this.props.petList.map( (pet, index) => (
+                    {petList.map( (pet, index) => (
                         <GridListTile key={index} cols={1}>
                             <h2>{ pet.name }</h2>
                             <p>{ pet.breed }</p>
@@ -20,12 +23,12 @@ class ClientComponent extends Component {
                             pet.adopted ?
                             <Button disabled type="submit" value="Adopt">Pet Adopted</Button>
                             :
-                            <Button onClick={() => this.props.adopt(index)} color="primary" value="Adopt">Adopt</Button>
+                            <Button onClick={() => adopt(index)} color="primary" value="Adopt">Adopt</Button>
                             }
                             {
-                            (pet.owner === this.props.account) ?
+                            (pet.owner === account) ?
                                 (<Button
-                                  onClick={() => this.props.returnPet(index)} 
+                                  onClick={() => returnPet(index)} 
                                   color="secondary" type="submit"
                                 >Return Pet
                                 </Button>) 
