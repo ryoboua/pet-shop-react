@@ -5,11 +5,12 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { AppContext } from '../App.js'
+
 
 export default class AddPetFormDialog extends Component {
     state = {
         name: '',
-        breed: '',
         price: '',
     }
 
@@ -17,9 +18,6 @@ export default class AddPetFormDialog extends Component {
         switch (event.target.id) {
             case 'name':
                 this.setState({ name: event.target.value })
-                break;
-            case 'breed':
-                this.setState({ breed: event.target.value})
                 break;
             case 'price':
                 this.setState({ price: event.target.value})
@@ -29,15 +27,26 @@ export default class AddPetFormDialog extends Component {
         }
     }
 
-    handleAddPet = () => {
-        this.props.addPet(
-            this.state.name,
-            this.state.breed,
-            this.state.price = 100 // default
-        )
-        this.props.closeForm()
-    }
+    AddPetButton = () => (
+        <AppContext.Consumer>
+            {appState => {
+                const { name, price } = this.state;
+                const { breed, image } = this.props.dog
+                return (
+                    <Button 
+                        color="primary"
+                        onClick={() => {
+                            appState.handleCreatePet(name, breed, price, image)
+                            return this.props.closeForm()
+                            }
+                        }
+                    > Add </Button>
+                    )
+            } 
+            }
+        </AppContext.Consumer>
 
+    )
     render() {
         return (
             <Dialog
@@ -60,11 +69,12 @@ export default class AddPetFormDialog extends Component {
                       margin="dense"
                       id="breed"
                       label="Breed"
+                      disabled={true}
                       type="Input"
                       fullWidth
-                      value={this.state.breed}
-                      onChange={this.onTextChange}                     
+                      value={this.props.dog.breed}
                     />
+                    <img src={this.props.dog.image} alt={`Picture of ${this.props.dog.breed}`} />
                     <TextField
                       margin="dense"
                       id="price"
@@ -79,9 +89,7 @@ export default class AddPetFormDialog extends Component {
                     <Button onClick={this.props.closeForm} color="primary">
                     Cancel
                     </Button>
-                    <Button onClick={this.handleAddPet} color="primary">
-                    Add
-                    </Button>
+                    {this.AddPetButton()}
                 </DialogActions>
             </Dialog>
         )
