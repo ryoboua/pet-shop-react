@@ -38,7 +38,7 @@ export class App extends Component {
         web3: results.web3
       })
       // Instantiate contract once web3 provided.
-      this.instantiateContract()
+      this.getActiveMetaMaskAccount(this.instantiateContract)
     })
     .catch(() => {
       console.log('Error finding web3.')
@@ -84,18 +84,16 @@ export class App extends Component {
           break;
         }
       }
-    }
+    },
   }
   
-  getActiveMetaMaskAccount = () => {
+  getActiveMetaMaskAccount = instantiateContract => {
       this.state.web3.eth.getAccounts( (err, accounts) => {
-          this.setState({ account : accounts[0]})
+          this.setState({ account : accounts[0]}, () => instantiateContract())
       })
   }
 
   instantiateContract = async () => {
-    // Getting deployed contract and setting up App state
-    this.getActiveMetaMaskAccount()
 
     Adoption.setProvider(this.state.web3.currentProvider);
     const adoptionInstance = await Adoption.deployed();
@@ -104,7 +102,8 @@ export class App extends Component {
     const TotalNumberOfPets = await adoptionInstance.getTotalNumberOfPets.call()
                                       .then(result => result.toString())
 
-    const petList = await getPetList(adoptionInstance, TotalNumberOfPets)
+    const activeAccount = this.state.account !== contractOwner ? this.state.account : 'owner'
+    const petList = await getPetList(adoptionInstance, TotalNumberOfPets, activeAccount)
 
     const storeEtherBalance = await adoptionInstance.getStoreBalance.call()
                                       .then(balance => fromWei(balance.toString()))
@@ -135,6 +134,7 @@ export class App extends Component {
               petList={this.state.petList}
               adopt={this.state.handleAdopt}
               returnPet={this.state.handleReturnPet}
+              estimateAdoptionGasPrice={this.state.estimateAdoptionGasPrice}
             />
   }
 
