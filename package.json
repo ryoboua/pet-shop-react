@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^1.4.3",
+    "bignumber.js": "^7.2.1",
     "dotenv": "^2.0.0",
     "react": "^16.4.2",
     "react-dom": "^16.4.2"

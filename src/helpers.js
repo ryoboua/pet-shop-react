@@ -1,11 +1,36 @@
-export const getPetList = async (contractInstance, numOfPets) => {
+import { toWei, fromWei } from '../node_modules/web3/lib/utils/utils'
+import {BigNumber} from 'bignumber.js';
+
+
+export const getPetList = async (contractInstance, numOfPets, activeAccount) => {
     // fetch Pet List and Rebuild Object Array of Pets
     const promiseArr = [];
-  
-    for (let i = 0; i < numOfPets; i++ ) 
+    const gasPriceArr = []
+    
+    if (activeAccount === 'owner') {
+        for (let i = 0; i < numOfPets; i++ ) 
         { promiseArr[i] = await contractInstance.pets(i) }
-
-    return promiseArr.map( ([ name , breed, price, imageURL, adopted, owner ]) => ({ name, breed, price: price.toString(), imageURL, adopted, owner }))
+    } else {
+        for (let i = 0; i < numOfPets; i++ ) { 
+            promiseArr[i] = await contractInstance.pets(i)
+            console.log(BigNumber(promiseArr[i][2]).toNumber())
+            const petPrice = BigNumber(promiseArr[i][2]).toNumber()
+            gasPriceArr[i] = await contractInstance.adopt.estimateGas(i, { from: activeAccount, value: toWei(petPrice, "ether") })
+            console.log(fromWei(gasPriceArr[i]))
+ 
+        }
+    }
+    return promiseArr.map(([ name , breed, price, imageURL, adopted, owner ], index) => {
+        return { 
+            name, 
+            breed, 
+            price: price.toString(),
+            imageURL, 
+            adopted, 
+            owner,
+            gasPrice: activeAccount === 'owner' ? 'N/A' : gasPriceArr[index]
+        }
+    })
   }
 
   export const fetchPet = async () => {
