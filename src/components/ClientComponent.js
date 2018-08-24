@@ -8,7 +8,7 @@ import styles from '../styles.js';
 
 class ClientComponent extends Component {
     render() {
-        const { petList, adopt, returnPet, account, estimateAdoptionGasPrice  } = this.props;
+        const { petList, adopt, returnPet, account  } = this.props;
         return (
             <Paper style={styles.paperStyle} >
                 <h1>Client View</h1>
@@ -20,7 +20,7 @@ class ClientComponent extends Component {
                                 <div>
                                     <h2>{ pet.name }</h2>
                                     <p>{ pet.breed }</p>
-                                    { !pet.adopted ? <p>{ pet.price } Ether + { pet.gasPrice } Gas</p> : null }
+                                    { !pet.adopted ? <p>{ pet.price } Ether + Gas</p> : null }
                                     {
                                     pet.adopted ?
                                     <Button disabled type="submit" value="Adopt">Pet Adopted</Button>
