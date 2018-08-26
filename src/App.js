@@ -71,19 +71,22 @@ export class App extends Component {
       .then(this.state.checkTransactionResults)
       .catch(err => console.log('Error during pet creation', err))
     },
-    checkTransactionResults: results => {
+    checkTransactionResults: async (results) => {
       for (var i = 0; i < results.logs.length; i++) {
-        if (results.logs[i].event === "NewPetCreated") {
-          alert('Pet Added');
+        if (results.logs[i].event === "NewPetCreated" || "PetAdopted" || "PetReturned") {
+          this.state.updateStore()
           break;
-        } else if (results.logs[i].event === "PetAdopted") {
-          alert('Pet Adopted');
-          break;
-        } else if (results.logs[i].event === "PetReturned") {
-          alert('Pet Returned');
-          break;
-        }
+        } 
       }
+    },
+    updateStore: async () => {
+      const { adoptionInstance } = this.state
+      const TotalNumberOfPets = await adoptionInstance.getTotalNumberOfPets.call()
+                                      .then(result => result.toString())
+      const petList = await getPetList(adoptionInstance, TotalNumberOfPets)
+      const storeEtherBalance = await adoptionInstance.getStoreBalance.call()
+                                      .then(balance => fromWei(balance.toString()))
+      this.setState({ petList, TotalNumberOfPets, storeEtherBalance }) 
     }
   }
   
@@ -118,6 +121,8 @@ export class App extends Component {
       }, 100); 
     })
   }
+
+
 
   loadingComplete = () => {
     this.setState({ showApp: true })
