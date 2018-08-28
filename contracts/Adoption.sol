@@ -24,10 +24,10 @@ contract Adoption is Migrations {
     constructor() public {
 
         //Populate Pet Store
-        createPet('Jackie', 'German Shepherd', 10, 'https://images.dog.ceo/breeds/germanshepherd/n02106662_4059.jpg');
-        createPet('Taco', 'Bulldog-Boston', 20, 'https://images.dog.ceo/breeds/bulldog-boston/n02096585_11614.jpg');
-        createPet('Jim', 'Appenzeller', 30, 'https://images.dog.ceo/breeds/appenzeller/n02107908_3387.jpg');
-        createPet('David', 'Redbone', 25, 'https://images.dog.ceo/breeds/redbone/n02090379_4643.jpg');
+        createPet('Jackie', 'German Shepherd', 1, 'https://images.dog.ceo/breeds/germanshepherd/n02106662_4059.jpg');
+        createPet('Taco', 'Bulldog-Boston', 2, 'https://images.dog.ceo/breeds/bulldog-boston/n02096585_11614.jpg');
+        createPet('Jim', 'Appenzeller', 3, 'https://images.dog.ceo/breeds/appenzeller/n02107908_3387.jpg');
+        createPet('David', 'Redbone', 5, 'https://images.dog.ceo/breeds/redbone/n02090379_4643.jpg');
 
     }
 
@@ -43,7 +43,7 @@ contract Adoption is Migrations {
         return _petId;
     }
 
-    function adopt(uint _petId) public payable returns (uint) {
+    function adopt(uint _petId) public payable returns (uint) {        
         uint _petPrice = _getPetAdoptionPrice(_petId);
 
         require(_petId >= 0);

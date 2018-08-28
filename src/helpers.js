@@ -8,9 +8,9 @@ export const getPetList = async (contractInstance, numOfPets) => {
     return promiseArr.map( ([ name , breed, price, imageURL, adopted, owner ]) => ({ name, breed, price: price.toString(), imageURL, adopted, owner }))
   }
 
-  export const fetchPet = async () => {
+export const fetchPet = async () => {
     const newPet = await fetch('https://dog.ceo/api/breeds/image/random').then(result => result.json()).catch(err => console.log(err))
-    
+
     if (newPet && newPet.status === 'success') {
         const breed = newPet.message.split('/')[4]
         const image = newPet.message
@@ -19,3 +19,5 @@ export const getPetList = async (contractInstance, numOfPets) => {
         return null;
     }
 }
+
+export const isObjectEmpty = obj => Object.keys(obj).length === 0 && obj.constructor === Object ? true : false
